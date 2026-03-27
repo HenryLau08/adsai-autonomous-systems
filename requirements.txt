@@ -1,0 +1,5 @@
+numpy
+matplotlib
+wheels
+pygame
+pettingzoo
