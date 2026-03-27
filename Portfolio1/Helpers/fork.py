@@ -1,8 +1,8 @@
 import numpy as np
-import get_valid_moves
-import drop_piece
-import check_win
-import get_opponent
+from get_valid_moves import get_valid_moves
+from drop_piece import drop_piece
+from check_win import check_win
+from get_opponent import get_opponent
 
 def count_winning_moves(board, player):
     """
