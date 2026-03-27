@@ -20,11 +20,13 @@ def defensive_strategy(observation, agent):
 
     def gives_free_win_above(col):
         row = drop_row(board, col)
+        # Als de kolom vol is of het stuk bovenaan belandt, sla over
         if row is None or row == 0:
             return False
         sim = drop_piece(board, col, player)
         if sim is None:
             return False
+        # Simuleer of de tegenstander op de cel direct boven ons stuk wint
         test = sim.copy()
         test[row - 1, col] = opp
         return check_win(test, opp)
@@ -34,11 +36,14 @@ def defensive_strategy(observation, agent):
             mover = player
         sim = drop_piece(board, col, mover)
         if sim is None:
-            return 999
+            return 999 # invalid move/ heel slecht, niet doen :D
         opp_mask = get_valid_moves(sim)
+        # Tel hoeveel winnende zetten de tegenstander heeft na onze zet
         return count_winning_moves(sim, opp) if opp_mask.any() else 0
 
     def find_fork_cols(p):
+        # Geeft alle kolommen terug waarmee speler een vork maakt
+        # twee of meer tegelijkertijd winnende dreigingen na die ene zet
         return [
             col for col in valid_cols
             if (drop_piece(board, col, p) is not None
@@ -50,6 +55,7 @@ def defensive_strategy(observation, agent):
         if sim is None:
             return 0
         sim_mask = get_valid_moves(sim)
+        # Tel hoeveel vervolgzetten ons zelf een vork opleveren
         return sum(
             1 for c in np.where(sim_mask)[0]
             if drop_piece(sim, c, player) is not None
