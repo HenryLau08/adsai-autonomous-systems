@@ -1,7 +1,5 @@
 import numpy as np
 from Helpers import find_winning_move, find_blocking_move, find_blocking_fork, find_fork_move
-from Helpers.find_move import find_winning_move, find_blocking_move
-from Helpers.fork import find_blocking_fork, find_fork_move
 
 def get_current_player(board):
     # tel aantal stukken

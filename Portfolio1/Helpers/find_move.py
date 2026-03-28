@@ -1,7 +1,5 @@
 import numpy as np
-from get_opponent import get_opponent
-from drop_piece import drop_piece
-from check_win import check_win
+from Helpers import get_opponent, drop_piece, check_win
 
 def find_winning_move(board, mask, player):
     """

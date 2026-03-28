@@ -1,11 +1,6 @@
 import numpy as np
-from Helpers.get_opponent import get_opponent
-from Helpers.drop_row import drop_row
-from Helpers.drop_piece import drop_piece
-from Helpers.check_win import check_win
-from Helpers.get_valid_moves import get_valid_moves
-from Helpers.find_move import find_winning_move, find_blocking_move
-from Helpers.fork import count_winning_moves, find_fork_move
+from Helpers import get_opponent, drop_row, drop_piece, check_win, get_valid_moves, find_winning_move, \
+find_blocking_move, count_winning_moves, find_fork_move
 
 def defensive_strategy(observation, agent):
     board = observation["board"]
