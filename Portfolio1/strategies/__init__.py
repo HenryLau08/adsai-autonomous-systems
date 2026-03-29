@@ -3,4 +3,4 @@ from .strategy_defense import defensive_strategy
 from .strategy_smart import smart_strategy
 from .strategy_geef_niet_op import geef_niet_op_strategy
 from .strategy_onetofive import one_to_five_strategy
-from .human_strategy import human_strategy_console
+from .human_widget import HumanWidgetStrategy

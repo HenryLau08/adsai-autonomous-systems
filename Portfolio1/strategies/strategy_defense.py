@@ -178,9 +178,12 @@ def defensive_strategy(board, mask, player):
             fork_scores[col] = fork_potential(sim, player)
 
     if fork_scores:
-        # choose the column with the highest fork potential
-        best_col = max(fork_scores, key=fork_scores.get)
-        return best_col
+        best_score = max(fork_scores.values())
+        if best_score > 0:
+            best_cols = [c for c, s in fork_scores.items() if s == best_score]
+            for col in [3, 2, 4, 1, 5, 0, 6]:
+                if col in best_cols:
+                    return col
 
     # 5. Block opponent fork
     opp_forks = [c for c in valid_cols if count_winning_moves(simulate_move(board, c, opponent), opponent) >= 2]
@@ -199,6 +202,7 @@ def defensive_strategy(board, mask, player):
         and not move_allows_opponent_fork(board, c, player)
     ]
     pool = safe_cols if safe_cols else valid_cols
+    print(pool)
 
     if 3 in pool:
         return 3
@@ -208,4 +212,4 @@ def defensive_strategy(board, mask, player):
         if col in pool:
             return col
 
-    return pool[0]
+    return pool

@@ -1,4 +1,4 @@
-from helpers import get_drop_row, simulate_move, check_win, count_winning_moves
+from helpers import get_drop_row, simulate_move, check_win
 
 def count_winning_moves(board, player):
     """
