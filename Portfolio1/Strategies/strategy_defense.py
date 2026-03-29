@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import get_drop_row, simulate_move, count_winning_moves, check_win
+from helpers import get_drop_row, simulate_move, count_winning_moves, check_win, move_allows_opponent_fork
 
 def defensive_strategy(board, mask, player):
     opponent = 3 - player
@@ -32,17 +32,25 @@ def defensive_strategy(board, mask, player):
     # 3. Fork
     my_forks = [c for c in valid_cols if count_winning_moves(simulate_move(board, c, player), player) >= 2]
     if my_forks:
-        safe = [c for c in my_forks if not gives_free_win_above(c)]
+        safe = [c for c in my_forks if not gives_free_win_above(c) and not move_allows_opponent_fork(board, c, player)]
         return min(safe if safe else my_forks)
 
     # 4. Block opponent fork
     opp_forks = [c for c in valid_cols if count_winning_moves(simulate_move(board, c, opponent), opponent) >= 2]
     if opp_forks:
-        safe = [c for c in valid_cols if not gives_free_win_above(c)]
+        safe = [
+            c for c in valid_cols
+            if not gives_free_win_above(c)
+            and not move_allows_opponent_fork(board, c, player)
+        ]
         return min(safe if safe else valid_cols)
 
-    # 5. Center preference
-    safe_cols = [c for c in valid_cols if not gives_free_win_above(c)]
+    # 5. Center preference (but avoid enabling forks)
+    safe_cols = [
+        c for c in valid_cols
+        if not gives_free_win_above(c)
+        and not move_allows_opponent_fork(board, c, player)
+    ]
     pool = safe_cols if safe_cols else valid_cols
 
     if 3 in pool:
