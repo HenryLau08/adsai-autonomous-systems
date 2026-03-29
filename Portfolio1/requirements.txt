@@ -3,3 +3,4 @@ matplotlib
 wheel
 pygame
 pettingzoo
+ipywidgets

@@ -16,14 +16,6 @@ BOARD_WIDTH = 7
 BOARD_HEIGHT = 6
 
 # ==================== HELPERS ====================
-# def convert_observation(obs):
-#     board = np.zeros((6, 7), dtype=int)
-#     for i in range(6):
-#         for j in range(7):
-#             if obs[i, j, 0] == 1: board[i, j] = 1
-#             elif obs[i, j, 1] == 1: board[i, j] = 2
-#     return board
-
 def print_text_board(board, mask):
     """De tekstuele weergave onder het bord"""
     print("\nCurrent board:")
@@ -70,7 +62,7 @@ def draw_game_board(ax, board):
                 fontsize=14, fontweight='bold', color=ACCENT_COLOR)
 
 def create_game_ui(board, current_player, game_status=""):
-    """CreÃ«er de volledige ADS & AI UI"""
+    """Creëer de volledige ADS & AI UI"""
     fig = plt.figure(figsize=(10, 8), facecolor=BOARD_COLOR)
     
     # Hoofd bord
@@ -82,7 +74,7 @@ def create_game_ui(board, current_player, game_status=""):
     fig.suptitle(title_text, fontsize=24, fontweight='bold', color=ACCENT_COLOR, y=0.98)
     
     # Status bar
-    player_info = f"Beurt: {'Jij (Wit - X)' if current_player == 1 else 'Computer (Blauw - O)'}"
+    player_info = f"Beurt: {'Player 1 (Wit - X)' if current_player == 1 else 'Player 2 (Blauw - O)'}"
     fig.text(0.5, 0.90, player_info, ha='center', fontsize=14, 
              color=TEXT_COLOR, fontweight='bold',
              bbox=dict(boxstyle='round,pad=0.5', facecolor=BOARD_COLOR, edgecolor=ACCENT_COLOR, linewidth=2))
