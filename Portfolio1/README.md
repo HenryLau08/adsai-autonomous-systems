@@ -61,6 +61,7 @@ visualize_tournament(results, names, rounds=100)
 ---
 
 ## Installatie
+Python versie: 3.12.10
 ```bash
 pip install -r Portfolio1/requirements.txt
 ```
