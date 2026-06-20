@@ -1,0 +1,18 @@
+# Getrainde modellen en trainingslogs (worden op Colab gegenereerd)
+tournament/models/*.zip
+agents/models/
+**/snapshots/
+**/monitor/
+
+# Video's en opnames
+*.mp4
+warlords_videos/
+videos/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Per ongeluk lokaal uitgevoerde clone-cel (notebook §2.3); hoort niet in git
+adsai-autonomous-systems/

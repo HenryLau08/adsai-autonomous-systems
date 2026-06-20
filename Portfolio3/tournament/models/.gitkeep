@@ -1,0 +1,4 @@
+# Plaats hier de getrainde PPO-modellen (.zip) die op Colab zijn gemaakt:
+#   ppo_first_0.zip, ppo_second_0.zip, ppo_third_0.zip, ppo_fourth_0.zip
+#   en/of ppo_corner_robust.zip
+# Deze bestanden worden niet meegecommit (zie ../.gitignore).
