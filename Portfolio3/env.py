@@ -26,13 +26,17 @@ class PettingZooRAMEnv:
         return np.asarray(obs, dtype=np.float32) / 255.0
 
     def step(self, action):
+        # apply action to current agent only
         self.env.step(action)
 
-        # stay on first agent (single-agent abstraction)
-        if len(self.env.agents) > 0:
-            self.agent = self.env.agents[0]
+        # get updated agent state safely
+        if len(self.env.agents) == 0:
+            return None, 0.0, True, {}
+
+        self.agent = self.env.agent_selection
 
         obs = self.env.observe(self.agent)
+
         reward = self.env.rewards[self.agent]
         done = (
             self.env.terminations[self.agent]
