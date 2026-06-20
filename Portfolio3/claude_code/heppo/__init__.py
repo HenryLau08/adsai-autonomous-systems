@@ -9,6 +9,7 @@ from .gae import compute_gae
 from .network import ActorCritic
 from .buffer import RolloutBuffer
 from .ppo_agent import HEPPOAgent, PPOConfig
+from .opponent_pool import OpponentPool, OpponentCheckpoint, elo_update, elo_expected_score
 
 __all__ = [
     "DynamicRewardStandardizer",
@@ -21,4 +22,8 @@ __all__ = [
     "RolloutBuffer",
     "HEPPOAgent",
     "PPOConfig",
+    "OpponentPool",
+    "OpponentCheckpoint",
+    "elo_update",
+    "elo_expected_score",
 ]
