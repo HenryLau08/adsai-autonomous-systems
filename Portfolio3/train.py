@@ -56,14 +56,20 @@ def train():
 
             actions = {}
 
-            for a in env.agents:
+            for agent in env.agents:
 
-                o = torch.tensor(obs[a], dtype=torch.float32)
+                o = torch.tensor(obs[agent], dtype=torch.float32)
 
-                logits, _ = agent(o)
-                action = torch.argmax(logits).item()
+                logits, _ = agent_model(o)
 
-                actions[a] = action
+                dist = torch.distributions.Categorical(logits=logits)
+
+                action = dist.sample().item()
+
+                # HARD SAFETY CHECK (prevents crash)
+                action = max(0, min(action, env.action_spaces[agent].n - 1))
+
+                actions[agent] = action
 
             obs, rewards, terms, truncs, infos, done = env.step(actions)
 

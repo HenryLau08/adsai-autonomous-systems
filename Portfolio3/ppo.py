@@ -45,9 +45,10 @@ class PPO:
             logits, value = self.model(obs)
 
             dist = torch.distributions.Categorical(logits=logits)
-            new_logp = dist.log_prob(actions)
+            action = dist.sample()
+            log_prob = dist.log_prob(action)
 
-            ratio = torch.exp(new_logp - old_logp)
+            ratio = torch.exp(log_prob - old_logp)
 
             s1 = ratio * adv
             s2 = torch.clamp(ratio, 1 - self.config["clip"], 1 + self.config["clip"]) * adv

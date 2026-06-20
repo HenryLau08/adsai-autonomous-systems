@@ -26,3 +26,7 @@ class WarlordsEnv:
     @property
     def agents(self):
         return self.env.agents
+    
+    @property
+    def action_spaces(self):
+        return self.env.action_spaces
