@@ -2,24 +2,25 @@ import torch
 import os
 
 
-def save_checkpoint(path, model, optimizer, step):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+def save(model, path, step, elo):
+    os.makedirs(path, exist_ok=True)
 
     torch.save({
-        "model_state": model.state_dict(),
-        "optimizer_state": optimizer.state_dict(),
-        "step": step
-    }, path)
+        "model": model.state_dict(),
+        "step": step,
+        "elo": elo
+    }, f"{path}/ckpt_{step}.pt")
 
 
-def load_checkpoint(path, model, optimizer):
+def load_latest(model, path):
     if not os.path.exists(path):
-        return 0
+        return model, 0, 1000
 
-    ckpt = torch.load(path)
+    files = sorted(os.listdir(path))
+    if not files:
+        return model, 0, 1000
 
-    model.load_state_dict(ckpt["model_state"])
-    optimizer.load_state_dict(ckpt["optimizer_state"])
+    data = torch.load(os.path.join(path, files[-1]))
 
-    print(f"[Checkpoint] Loaded from step {ckpt['step']}")
-    return ckpt["step"]
+    model.load_state_dict(data["model"])
+    return model, data["step"], data["elo"]

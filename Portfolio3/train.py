@@ -1,106 +1,85 @@
 import torch
-import torch.optim as optim
-
-import config as cfg
-from env import PettingZooRAMEnv
-from model import ActorCritic
-from buffer import Buffer
+import copy
+from env import WarlordsEnv
+from model import PolicyNet
 from ppo import PPO
-from checkpoint import save_checkpoint, load_checkpoint
+from elo import EloSystem
+from opponent_pool import OpponentPool
+from checkpoint import save
+
+
+def create_agent(obs_dim, act_dim):
+    return PolicyNet(obs_dim, act_dim)
+
+
+def get_opponent(agent, pool):
+    if len(pool.pool) == 0:
+        return copy.deepcopy(agent)
+
+    opp = copy.deepcopy(agent)
+    opp.load_state_dict(pool.sample())
+    opp.eval()
+    return opp
 
 
 def train():
 
-    # -------------------------
-    # Environment
-    # -------------------------
-    env = PettingZooRAMEnv()
+    env = WarlordsEnv()
 
-    obs_dim = env.obs_dim
-    act_dim = env.act_dim
+    obs_dim = 128   # adjust for RAM obs
+    act_dim = 18    # Atari actions
 
-    # -------------------------
-    # Model + Optimizer
-    # -------------------------
-    model = ActorCritic(obs_dim, act_dim)
-    optimizer = optim.Adam(model.parameters(), lr=cfg.LR)
+    agent = create_agent(obs_dim, act_dim)
 
-    # -------------------------
-    # PPO Agent
-    # -------------------------
-    agent = PPO(model, optimizer, cfg)
-    buffer = Buffer()
+    optimizer = torch.optim.Adam(agent.parameters(), lr=3e-4)
 
-    # -------------------------
-    # Load checkpoint (if exists)
-    # -------------------------
-    step = load_checkpoint(cfg.CHECKPOINT_PATH, model, optimizer)
+    ppo = PPO(agent, optimizer, {
+        "gamma": 0.99,
+        "lam": 0.95,
+        "clip": 0.2,
+        "epochs": 4
+    })
 
-    # -------------------------
-    # Reset env
-    # -------------------------
-    obs = env.reset()
+    elo = EloSystem()
+    pool = OpponentPool()
 
-    episode_reward = 0
-    episode_count = 0
+    for episode in range(10000):
 
-    # -------------------------
-    # Training loop
-    # -------------------------
-    while step < 1_000_000:
+        obs = env.reset()
+        done = False
 
-        action, logprob, value = model.act(obs)
+        opponent = get_opponent(agent, pool)
 
-        next_obs, reward, done, _ = env.step(action)
+        total_reward = 0
 
-        buffer.store(
-            obs,
-            action,
-            logprob.item(),
-            reward,
-            value.item(),
-            done
-        )
+        while not done:
 
-        obs = next_obs
-        episode_reward += reward
-        step += 1
+            actions = {}
 
-        # -------------------------
-        # PPO update trigger
-        # -------------------------
-        if len(buffer.obs) >= cfg.STEPS_PER_UPDATE:
+            for a in env.agents:
 
-            batch = buffer.get()
-            agent.update(batch)
-            buffer.clear()
+                o = torch.tensor(obs[a], dtype=torch.float32)
 
-            # -------------------------
-            # Save checkpoint
-            # -------------------------
-            if step % cfg.SAVE_EVERY == 0:
-                save_checkpoint(
-                    cfg.CHECKPOINT_PATH,
-                    model,
-                    optimizer,
-                    step
-                )
-                print(f"[Checkpoint] Saved at step {step}")
+                logits, _ = agent(o)
+                action = torch.argmax(logits).item()
 
-        # -------------------------
-        # Episode end handling
-        # -------------------------
-        if done:
-            episode_count += 1
+                actions[a] = action
 
-            print(
-                f"Episode {episode_count} | "
-                f"Reward: {episode_reward:.2f} | "
-                f"Step: {step}"
-            )
+            obs, rewards, terms, truncs, infos, done = env.step(actions)
 
-            obs = env.reset()
-            episode_reward = 0
+            total_reward += rewards["player"] if "player" in rewards else 0
+
+        result = 1 if total_reward > 0 else 0
+
+        elo.update("agent", "opponent", result)
+
+        if episode % 50 == 0:
+            pool.add(agent.state_dict(), episode)
+
+        if episode % 100 == 0:
+            save(agent, "checkpoints", episode, elo.get("agent"))
+
+        print(f"Episode {episode} | Reward {total_reward} | ELO {elo.get('agent')}")
 
 
 if __name__ == "__main__":

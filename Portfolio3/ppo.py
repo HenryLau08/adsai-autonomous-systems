@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-from utils import compute_gae
 
 
 class PPO:
@@ -9,65 +8,53 @@ class PPO:
         self.optimizer = optimizer
         self.config = config
 
-        self.reward_mean = 0
-        self.reward_var = 0
-        self.count = 1e-8
+    def compute_gae(self, rewards, values, dones):
+        gamma = self.config["gamma"]
+        lam = self.config["lam"]
 
-    def normalize_reward(self, r):
-        self.count += 1
-        delta = r - self.reward_mean
-        self.reward_mean += delta / self.count
-        self.reward_var += delta * (r - self.reward_mean)
-        std = (self.reward_var / self.count) ** 0.5
-        return (r - self.reward_mean) / (std + 1e-8)
+        adv = []
+        gae = 0
+
+        values = values + [0]
+
+        for t in reversed(range(len(rewards))):
+            delta = rewards[t] + gamma * values[t + 1] * (1 - dones[t]) - values[t]
+            gae = delta + gamma * lam * (1 - dones[t]) * gae
+            adv.insert(0, gae)
+
+        returns = np.array(adv) + np.array(values[:-1])
+
+        return np.array(adv), returns
 
     def update(self, batch):
-        obs, actions, old_logprobs, rewards, values, dones = batch
+        obs, actions, old_logp, rewards, values, dones = batch
 
-        # -----------------------
-        # Dynamic reward norm
-        # -----------------------
-        rewards = np.array([self.normalize_reward(r) for r in rewards])
+        adv, ret = self.compute_gae(rewards, values, dones)
 
-        # -----------------------
-        # GAE
-        # -----------------------
-        advantages, returns = compute_gae(
-            rewards,
-            values,
-            dones,
-            self.config.GAMMA,
-            self.config.LAMBDA
-        )
+        adv = (adv - adv.mean()) / (adv.std() + 1e-8)
 
-        advantages = torch.tensor(advantages, dtype=torch.float32)
-        returns = torch.tensor(returns, dtype=torch.float32)
+        obs = torch.tensor(obs, dtype=torch.float32)
+        actions = torch.tensor(actions)
+        old_logp = torch.tensor(old_logp)
 
-        # advantage normalization (recommended even in paper practice)
-        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        ret = torch.tensor(ret, dtype=torch.float32)
+        adv = torch.tensor(adv, dtype=torch.float32)
 
-        # -----------------------
-        # PPO update
-        # -----------------------
-        for _ in range(self.config.EPOCHS):
+        for _ in range(self.config["epochs"]):
 
             logits, value = self.model(obs)
 
             dist = torch.distributions.Categorical(logits=logits)
-            new_logprobs = dist.log_prob(actions)
+            new_logp = dist.log_prob(actions)
+
+            ratio = torch.exp(new_logp - old_logp)
+
+            s1 = ratio * adv
+            s2 = torch.clamp(ratio, 1 - self.config["clip"], 1 + self.config["clip"]) * adv
+
+            policy_loss = -torch.min(s1, s2).mean()
+            value_loss = ((ret - value.squeeze()) ** 2).mean()
             entropy = dist.entropy().mean()
-
-            ratio = torch.exp(new_logprobs - old_logprobs)
-
-            surr1 = ratio * advantages
-            surr2 = torch.clamp(
-                ratio,
-                1 - self.config.CLIP_EPS,
-                1 + self.config.CLIP_EPS
-            ) * advantages
-
-            policy_loss = -torch.min(surr1, surr2).mean()
-            value_loss = ((returns - value.squeeze()) ** 2).mean()
 
             loss = policy_loss + 0.5 * value_loss - 0.01 * entropy
 

@@ -1,33 +1,26 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+import copy
 
 
-class ActorCritic(nn.Module):
-    def __init__(self, obs_dim, act_dim):
+class PolicyNet(nn.Module):
+    def __init__(self, obs_dim, action_dim):
         super().__init__()
 
-        self.shared = nn.Sequential(
-            nn.Linear(obs_dim, 128),
+        self.net = nn.Sequential(
+            nn.Linear(obs_dim, 256),
             nn.ReLU(),
-            nn.Linear(128, 128),
-            nn.ReLU()
+            nn.Linear(256, 256),
+            nn.ReLU(),
         )
 
-        self.actor = nn.Linear(128, act_dim)
-        self.critic = nn.Linear(128, 1)
+        self.actor = nn.Linear(256, action_dim)
+        self.critic = nn.Linear(256, 1)
 
     def forward(self, x):
-        x = self.shared(x)
+        x = self.net(x)
         return self.actor(x), self.critic(x)
 
-    def act(self, obs):
-        obs = torch.tensor(obs, dtype=torch.float32)
 
-        logits, value = self.forward(obs)
-
-        dist = torch.distributions.Categorical(logits=logits)
-        action = dist.sample()
-        logprob = dist.log_prob(action)
-
-        return action.item(), logprob.detach(), value.detach()
+def clone_model(model):
+    return copy.deepcopy(model)
