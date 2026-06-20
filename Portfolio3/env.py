@@ -8,16 +8,20 @@ class WarlordsEnv:
         self.env.reset()
 
     def reset(self):
-        obs, infos = self.env.reset()
-        return obs
+        self.env.reset()
+        return {agent: self.env.observe(agent) for agent in self.env.agents}
 
     def step(self, actions):
-        # IMPORTANT: PettingZoo API (multi-agent)
-        obs, rewards, terminations, truncations, infos = self.env.step(actions)
+        self.env.step(actions)
 
-        done = all(terminations.values()) or all(truncations.values())
+        obs = {agent: self.env.observe(agent) for agent in self.env.agents}
+        rewards = self.env.rewards.copy()
+        terms = self.env.terminations.copy()
+        truncs = self.env.truncations.copy()
 
-        return obs, rewards, terminations, truncations, infos, done
+        done = all(terms.values()) or all(truncs.values())
+
+        return obs, rewards, terms, truncs, {}, done
 
     @property
     def agents(self):
