@@ -11,3 +11,6 @@ CLIP_EPS = 0.2
 STEPS_PER_UPDATE = 2048
 EPOCHS = 8
 BATCH_SIZE = 64
+
+CHECKPOINT_PATH = "checkpoints/ppo_latest.pt"
+SAVE_EVERY = 5   # number of updates
