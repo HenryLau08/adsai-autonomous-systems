@@ -4,42 +4,26 @@ from pettingzoo.atari import warlords_v3
 
 class WarlordsEnv:
     def __init__(self):
-        self.env = warlords_v3.env(obs_type="ram", render_mode="rgb_array")
-        self.env.reset()
+        self.env = warlords_v3.parallel_env(
+            obs_type="ram",
+            render_mode="rgb_array"
+        )
 
     def reset(self):
-        self.env.reset()
-        return self._get_obs()
+        obs, infos = self.env.reset()
+        return obs
 
-    def _get_obs(self):
-        return {a: self.env.observe(a) for a in self.env.agents}
+    def step(self, actions):
+        obs, rewards, terms, truncs, infos = self.env.step(actions)
 
-    def step(self, action_dict):
-        """
-        IMPORTANT:
-        We step ONE agent at a time (PettingZoo AEC rule)
-        """
+        dones = {
+            a: terms[a] or truncs[a]
+            for a in self.env.agents
+        }
 
-        for agent in self.env.agent_iter():
+        done = all(dones.values())
 
-            obs, reward, termination, truncation, info = self.env.last()
-
-            if termination or truncation:
-                action = None
-            else:
-                action = action_dict[agent]
-
-            self.env.step(action)
-
-        obs = self._get_obs()
-
-        rewards = self.env.rewards.copy()
-        terms = self.env.terminations.copy()
-        truncs = self.env.truncations.copy()
-
-        done = all(terms.values()) or all(truncs.values())
-
-        return obs, rewards, terms, truncs, done
+        return obs, rewards, dones, infos, done
 
     @property
     def agents(self):

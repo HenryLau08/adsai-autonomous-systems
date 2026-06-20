@@ -4,15 +4,14 @@ import numpy as np
 from env import WarlordsEnv
 from model import PolicyNet
 from ppo import PPO
-from checkpoint import save
 
 
 def train():
 
     env = WarlordsEnv()
 
-    obs_dim = 128
-    act_dim = 18
+    obs_dim = 128   # RAM obs (approx)
+    act_dim = 6     # warlords action range [0,5]
 
     policy = PolicyNet(obs_dim, act_dim)
     optimizer = torch.optim.Adam(policy.parameters(), lr=3e-4)
@@ -51,13 +50,15 @@ def train():
                 logits, value = policy(o)
 
                 dist = torch.distributions.Categorical(logits=logits)
+
                 action = dist.sample()
+
                 logp = dist.log_prob(action)
 
                 action = action.item()
 
-                # safety clamp
-                action = max(0, min(action, env.action_spaces[agent_id].n - 1))
+                # IMPORTANT: correct bounds [0,5]
+                action = max(0, min(action, 5))
 
                 actions[agent_id] = action
 
@@ -66,18 +67,17 @@ def train():
                 buffer["logp"].append(logp.item())
                 buffer["values"].append(value.item())
 
-            obs, rewards, terms, truncs, done = env.step(actions)
+            obs, rewards, dones, infos, done = env.step(actions)
 
-            r = sum(rewards.values())  # team reward collapse
+            # sparse reward handling (IMPORTANT)
+            r = sum(rewards.values())
 
             buffer["rewards"].append(r)
             buffer["dones"].append(done)
 
             ep_reward += r
 
-        # ------------------------
-        # PPO UPDATE
-        # ------------------------
+        # PPO update
         ppo.update((
             buffer["obs"],
             buffer["actions"],
@@ -88,12 +88,6 @@ def train():
         ))
 
         buffer = {k: [] for k in buffer}
-
-        # ------------------------
-        # SAVE
-        # ------------------------
-        if ep % 100 == 0:
-            save(policy, "checkpoints", ep)
 
         print(f"Episode {ep} | Reward {ep_reward}")
 

@@ -13,6 +13,7 @@ class PPO:
         lam = self.cfg["lam"]
 
         values = values + [0]
+
         gae = 0
         adv = []
 
@@ -29,6 +30,7 @@ class PPO:
 
         adv, ret = self.compute_gae(rewards, values, dones)
 
+        # normalization (IMPORTANT for sparse + delayed rewards)
         adv = (adv - adv.mean()) / (adv.std() + 1e-8)
 
         obs = torch.tensor(obs, dtype=torch.float32)
@@ -42,6 +44,7 @@ class PPO:
             logits, value = self.model(obs)
 
             dist = torch.distributions.Categorical(logits=logits)
+
             logp = dist.log_prob(actions)
 
             ratio = torch.exp(logp - logp_old)
