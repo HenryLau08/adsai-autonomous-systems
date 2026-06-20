@@ -3,19 +3,18 @@ import numpy as np
 
 
 class PPO:
-    def __init__(self, model, optimizer, config):
+    def __init__(self, model, optimizer, cfg):
         self.model = model
         self.optimizer = optimizer
-        self.config = config
+        self.cfg = cfg
 
     def compute_gae(self, rewards, values, dones):
-        gamma = self.config["gamma"]
-        lam = self.config["lam"]
-
-        adv = []
-        gae = 0
+        gamma = self.cfg["gamma"]
+        lam = self.cfg["lam"]
 
         values = values + [0]
+        gae = 0
+        adv = []
 
         for t in reversed(range(len(rewards))):
             delta = rewards[t] + gamma * values[t + 1] * (1 - dones[t]) - values[t]
@@ -23,11 +22,10 @@ class PPO:
             adv.insert(0, gae)
 
         returns = np.array(adv) + np.array(values[:-1])
-
         return np.array(adv), returns
 
     def update(self, batch):
-        obs, actions, old_logp, rewards, values, dones = batch
+        obs, actions, logp_old, rewards, values, dones = batch
 
         adv, ret = self.compute_gae(rewards, values, dones)
 
@@ -35,26 +33,26 @@ class PPO:
 
         obs = torch.tensor(obs, dtype=torch.float32)
         actions = torch.tensor(actions)
-        old_logp = torch.tensor(old_logp)
-
-        ret = torch.tensor(ret, dtype=torch.float32)
+        logp_old = torch.tensor(logp_old)
+        returns = torch.tensor(ret, dtype=torch.float32)
         adv = torch.tensor(adv, dtype=torch.float32)
 
-        for _ in range(self.config["epochs"]):
+        for _ in range(self.cfg["epochs"]):
 
             logits, value = self.model(obs)
 
             dist = torch.distributions.Categorical(logits=logits)
-            action = dist.sample()
-            log_prob = dist.log_prob(action)
+            logp = dist.log_prob(actions)
 
-            ratio = torch.exp(log_prob - old_logp)
+            ratio = torch.exp(logp - logp_old)
 
-            s1 = ratio * adv
-            s2 = torch.clamp(ratio, 1 - self.config["clip"], 1 + self.config["clip"]) * adv
+            clip = self.cfg["clip"]
 
-            policy_loss = -torch.min(s1, s2).mean()
-            value_loss = ((ret - value.squeeze()) ** 2).mean()
+            loss1 = ratio * adv
+            loss2 = torch.clamp(ratio, 1 - clip, 1 + clip) * adv
+
+            policy_loss = -torch.min(loss1, loss2).mean()
+            value_loss = ((returns - value.squeeze()) ** 2).mean()
             entropy = dist.entropy().mean()
 
             loss = policy_loss + 0.5 * value_loss - 0.01 * entropy
