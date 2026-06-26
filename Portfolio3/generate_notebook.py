@@ -38,7 +38,7 @@ CELLS = [
     # ---------------------------------------------------------------- titel
     md(
         r"""
-# Portfolio 3 — Multi-Agent Reinforcement Learning (Atari *Warlords*)
+# Portfolio 3 - Multi-Agent Reinforcement Learning (Atari *Warlords*)
 
 **Vak:** Autonomous Systems · De Haagse Hogeschool
 
@@ -48,7 +48,7 @@ concurreert met drie andere agenten, en vergelijken die met baselines.
 
 > **Uitvoeren:** dit notebook draait op **Google Colab** (Linux + GPU). De
 > Atari-backend `multi_agent_ale_py` heeft geen Windows-wheels; op Windows werkt
-> alleen WSL2 of Colab. Kies in Colab *Runtime → Change runtime type → GPU*.
+> alleen WSL2 of Colab. Kies in Colab *Runtime -> Change runtime type -> GPU*.
 """
     ),
     # ---------------------------------------------------------------- 1. intro
@@ -101,7 +101,7 @@ die elk hun eigen hoek leren verdedigen.
   2016) en aan IPPO (de Witt et al., 2020), dat verrassend sterk presteert in
   competitieve benchmarks.
 - **Observatie: RAM.** Het toernooi gebruikt `obs_type="ram"`, en een kleine MLP op
-  128 bytes traint veel sneller dan een CNN op pixels — ideaal voor de vele
+  128 bytes traint veel sneller dan een CNN op pixels - ideaal voor de vele
   benodigde environment-stappen.
 
 ### 1.5 Baseline
@@ -116,9 +116,9 @@ een **rule-based policy** die actief de eigen hoek patrouilleert en periodiek vu
 
 Draai de cellen hieronder **één keer van boven naar beneden**. Ze installeren de
 libraries, plaatsen de Atari-ROMs (de bekende valkuil van PettingZoo-Atari), halen
-de projectcode op en doen de imports. Zet eerst *Runtime → Change runtime type → GPU*.
+de projectcode op en doen de imports. Zet eerst *Runtime -> Change runtime type -> GPU*.
 
-> Krijg je na de installatie tóch een import-fout? Kies dan *Runtime → Restart
+> Krijg je na de installatie tóch een import-fout? Kies dan *Runtime -> Restart
 > session* en draai de setup-cellen opnieuw. Dat is soms eenmalig nodig wanneer
 > Colab een al ingeladen pakket (zoals NumPy) vervangt.
 """
@@ -222,7 +222,7 @@ print("Acties:", ACTION_MEANINGS)
     ),
     md(
         r"""
-## 2.5 Google Drive — modellen bewaren (sterk aangeraden)
+## 2.5 Google Drive - modellen bewaren (sterk aangeraden)
 
 Gratis Colab verbreekt de sessie na verloop van tijd en **wist dan alles**, ook je
 getrainde modellen. Door Google Drive te koppelen schrijven we de modellen naar je
@@ -276,7 +276,7 @@ def restore_from_drive():
 ## 3. De omgeving verkennen
 
 We controleren de actie- en observatieruimte en bekijken welke RAM-bytes het meest
-veranderen — die zijn kandidaat voor bal- en paddleposities (de starterscode bevat
+veranderen - die zijn kandidaat voor bal- en paddleposities (de starterscode bevat
 hiervoor de basis; `ram_tools` aggregeert dit over een hele episode).
 """
     ),
@@ -360,13 +360,13 @@ worden gespeeld. Belangrijke ontwerpkeuzes:
   (lager getal, maar relatief gezien dezelfde trend).
 - **Reward shaping:** de ruwe beloning is spaarzaam (alleen ±1 op het eind). We
   voegen een kleine `survival_bonus` per overleefde stap toe, zodat "langer
-  overleven" beloond wordt — dat correleert sterk met winnen en versnelt het leren
+  overleven" beloond wordt - dat correleert sterk met winnen en versnelt het leren
   (vgl. reward shaping, Ng et al., 1999). De *evaluatie* gebruikt altijd de pure
   win/verlies-uitkomst, niet de shaping.
 - **Independent learners:** elke hoek krijgt een eigen PPO-model; tegenstanders
   worden per generatie bevroren (`train.train_independent`).
 - **Robuust op gratis Colab:** toernooien hebben een `max_steps`-limiet en tonen
-  voortgang (geen lange, stille cellen → minder kans op een time-out), en de modellen
+  voortgang (geen lange, stille cellen -> minder kans op een time-out), en de modellen
   worden naar Google Drive geback-upt (§2.5) zodat een disconnect geen werk kost.
 
 De boekhouding van deze wrapper (actie-dict, doorgeven van beloning/terminatie,
@@ -381,7 +381,7 @@ met unit-tests (`tests/test_env_wrapper.py`).
 
 > **Tijd vs. kwaliteit.** Hieronder staan bescheiden waarden voor een snelle, veilige
 > demonstratie op gratis Colab. Voor sterkere agenten verhoog je `steps_per_agent` en
-> `generations` — maar doe dat in stappen en gebruik de Drive-backup (§2.5), zodat een
+> `generations` - maar doe dat in stappen en gebruik de Drive-backup (§2.5), zodat een
 > disconnect je werk niet wist. Met `frame_skip=4` dekt elke stap 4 frames, dus je
 > krijgt veel episodes per stap. Op een Colab-GPU met RAM-observaties is de emulator
 > (CPU) de bottleneck, dus meer `n_envs` helpt meer dan een zwaardere GPU.
@@ -414,7 +414,7 @@ print("Getrainde hoeken:", list(models.keys()))
 ### 7.0 Modellen terugzetten na een disconnect (optioneel)
 Liep je Colab-sessie eruit ná het trainen? Draai dan de setup-cellen (§2, incl.
 §2.5 Drive) opnieuw en daarna de cel hieronder om de modellen van Drive terug te
-halen — zo hoef je niet opnieuw te trainen.
+halen - zo hoef je niet opnieuw te trainen.
 """
     ),
     code(
@@ -574,7 +574,7 @@ print("Hoek-robuust model opgeslagen als tournament/models/ppo_corner_robust.zip
         r"""
 Draai vervolgens `tournament/warlords_tournament_ram_mode.ipynb` (met de vier
 `agentN.py`-bestanden) om Agent1 (random) en Agent2 (rule-based) tegen Agent3/Agent4
-(PPO) te laten spelen — een directe demonstratie van de meerwaarde van RL.
+(PPO) te laten spelen - een directe demonstratie van de meerwaarde van RL.
 """
     ),
     # ---------------------------------------------------------------- 10. conclusie
@@ -595,7 +595,7 @@ win-percentage in §7).
 **Beperkingen.**
 - De beloning is zeer spaarzaam; zonder de survival-shaping leert PPO traag.
 - Omdat alle hoeken dezelfde globale RAM zien zonder hoek-indicator, kan één
-  gedeeld beleid de hoeken niet onderscheiden — dit beperkt een hoek-agnostische
+  gedeeld beleid de hoeken niet onderscheiden - dit beperkt een hoek-agnostische
   toernooi-agent fundamenteel.
 - Generatie-gewijs bevriezen benadert echte gelijktijdige independent learning, maar
   is niet identiek (vgl. de Witt et al., 2020).
@@ -620,7 +620,7 @@ win-percentage in §7).
 > juistheid bevestigt. Vul hieronder je eigen prompts in (verwijder dit blok niet).
 
 **Voorbeeld (format):**
-- [ChatGPT, 2026. Prompt 1: PPO voor multi-agent Warlords](https://chat.openai.com/share/…) —
+- [ChatGPT, 2026. Prompt 1: PPO voor multi-agent Warlords](https://chat.openai.com/share/…) -
   bevestigd door Schulman et al. (2017) en Raffin et al. (2021).
 
 In code-cellen verwijs je in een comment naar de prompt, bijv.:

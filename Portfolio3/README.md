@@ -1,4 +1,4 @@
-# Portfolio 3 — Multi-Agent Reinforcement Learning (Atari *Warlords*)
+# Portfolio 3 - Multi-Agent Reinforcement Learning (Atari *Warlords*)
 
 Een Multi-Agent Reinforcement Learning (MARL) systeem voor het 4-speler Atari-spel
 **Warlords** via PettingZoo. We trainen vier **independent PPO**-policies (één per
@@ -11,14 +11,14 @@ rule-based baseline.
 
 ## Aanpak in het kort
 
-- **Algoritme:** PPO (Proximal Policy Optimization) — on-policy, stabiel en robuust
+- **Algoritme:** PPO (Proximal Policy Optimization) - on-policy, stabiel en robuust
   in een niet-stationaire multi-agent-omgeving.
 - **MARL-strategie:** *Independent learners* (IPPO). Elke hoek heeft een eigen
   PPO-beleid; tegenstanders worden per **generatie bevroren** om de
   niet-stationariteit te temmen (verwant aan fictitious self-play).
 - **Observatie:** RAM (128 bytes), net als het toernooi. Cruciaal detail: **alle
   hoeken zien dezelfde globale RAM**, wat per-hoek (independent) policies een
-  logische keuze maakt — een gedeeld beleid kan de hoeken niet onderscheiden.
+  logische keuze maakt - een gedeeld beleid kan de hoeken niet onderscheiden.
 - **Reward shaping:** een kleine survival-bonus densificeert de spaarzame ±1
   eindbeloning; de evaluatie gebruikt altijd de pure win/verlies-uitkomst.
 
@@ -102,7 +102,7 @@ altijd draait.
 
 De lastige boekhouding van de single-agent wrapper (actie-dict samenstellen,
 beloning/terminatie doorgeven, geëlimineerde agenten afhandelen) is geverifieerd
-met een mock van de PettingZoo-API — **zonder Atari, PyTorch of SB3**:
+met een mock van de PettingZoo-API - **zonder Atari, PyTorch of SB3**:
 
 ```bash
 python tests/test_env_wrapper.py
