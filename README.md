@@ -5,6 +5,6 @@ Wij zijn studenten aan De Haagse Hogeschool en in deze cursus gaan we ons verdie
 Tijdens de cursus werken we aan 3 portfolio's:
 - Portfolio 1: Vier op een rij (Pettingzoo + Rule-based)
 - Portfolio 2: StarGunner met Reinforced Learning
-- Portfolio 3:
+- Portfolio 3: Warlords met Multi-Agent Reinforcement Learning (PettingZoo + PPO)
 
 Klik op de Portfolio voor meer informatie.

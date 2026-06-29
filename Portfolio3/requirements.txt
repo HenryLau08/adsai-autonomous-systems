@@ -1,0 +1,24 @@
+# Portfolio 3 - Multi-Agent RL (Warlords)
+# Getest op Google Colab (Linux, Python 3.12). Op native Windows draait de
+# Atari-backend (multi_agent_ale_py) niet; gebruik Colab of WSL2.
+
+# Multi-agent omgeving + Atari ROMs
+pettingzoo[atari]>=1.24.0
+multi-agent-ale-py>=0.1.11
+autorom[accept-rom-license]>=0.6.1
+gymnasium>=0.29
+
+# Deep RL
+stable-baselines3>=2.0.0
+torch>=2.2
+
+# Data, visualisatie en video
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+imageio>=2.31
+imageio-ffmpeg>=0.4
+
+# Voortgangsbalk voor SB3 (.learn(progress_bar=True))
+tqdm>=4.65
+rich>=13.0
