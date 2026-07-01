@@ -64,7 +64,7 @@ pip install -r requirements.txt
 AutoROM --accept-license
 ```
 
-Op Google Colab (verwijder het commentaar in cel §2.1 van het notebook):
+Op Google Colab:
 
 ```python
 !pip install "pettingzoo[atari]" "autorom[accept-rom-license]" "stable-baselines3>=2.0.0" imageio imageio-ffmpeg tqdm rich
@@ -112,15 +112,6 @@ In `tournament/models/` horen vijf zip-bestanden:
 terug op `ppo_corner_robust.zip`. Zonder enig model spelen ze willekeurig, zodat
 `warlords_tournament_ram_mode.ipynb` altijd draait.
 
-## Tests
-
-De wrapper-boekhouding (actie-dict, beloning/terminatie doorgeven, geelimineerde
-agenten) is geverifieerd met een mock van de PettingZoo-API - zonder Atari,
-PyTorch of SB3 nodig te hebben:
-
-```bash
-python tests/test_env_wrapper.py
-```
 
 ## Reproduceerbaarheid
 
